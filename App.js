@@ -1,9 +1,16 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image, Button, TouchableWithoutFeedback, WebView } from 'react-native';
+import { StyleSheet, Text, View, Image, Button, TouchableWithoutFeedback, WebView, FormLabel, FormInput } from 'react-native';
 import { StackNavigator } from 'react-navigation';
+import axios from 'axios';
 
 
 class SignIn extends React.Component {
+
+  onSubmit(event){
+    event.prevenDefault()
+    alert('woot!')
+  }
+
   render() {
     let pic = {
       uri: 'http://etcalendar.its.txstate.edu/image/6722/take%20a%20study%20break.jpg'
@@ -14,21 +21,35 @@ class SignIn extends React.Component {
           <Image source={pic} style={{ width: 262, height: 150 }} />
         </View>
         <View style={styles.buttons}>
+          {/*<FormLabel>email</FormLabel>
+          <FormInput/>
+          <FormLabel>password</FormLabel>
+          <FormInput/>
+          <Button 
+            onPress={() => { this.handleSubmit}}
+            title="Log In"
+          />*/}
           <Button
             onPress={() => {
-              this.props.navigation.navigate('Page')}}
+              this.props.navigation.navigate('Page', {
+                email: 'laurel.bear@gmail.com'
+              })}}
             title="Laurel"
             color="#f4af41"
             accessibilityLabel="Laurel's login"
           />
           <Button
-            onPress={() => this.props.navigation.navigate('Page')}
+            onPress={() => this.props.navigation.navigate('Page', {
+              email: 'hgodlove@gmail.com'
+            })}
             title="Hannah"
             color="#f49741"
             accessibilityLabel="Hannah's login"
           />
           <Button
-            onPress={() => this.props.navigation.navigate('Page')}
+            onPress={() => this.props.navigation.navigate('Page', {
+              email: 'roxannewinston@gmail.com'
+            })}
             title="Roxanne"
             color="#f46d41"
             accessibilityLabel="Roxanne's login"
@@ -64,37 +85,38 @@ class UserPage extends React.Component {
   constructor() {
     super();
     this.state = {
-      pic: {
-        uri: 'https://www.listenherereviews.com/wp-content/uploads/2014/06/JanelleMonae_Covergirl.jpeg'
-      },
-      imgArr: [
-        'https://pixel.nymag.com/imgs/fashion/daily/2018/04/26/26-Janelle-Monae.w710.h473.jpg',
-        'https://media.gq.com/photos/5877c07a2aaff8d26115b6d6/3:2/w_880/0217-GQ-FEJM02-01-Janelle-Monae-02.jpg',
-        'https://www.listenherereviews.com/wp-content/uploads/2014/06/JanelleMonae_Covergirl.jpeg',
-        'https://images-na.ssl-images-amazon.com/images/I/A1-YMqg-VtL.jpg',
-        'https://img.wennermedia.com/article-leads-immersive/janelle-monae-cover-story-rolling-stone-2018--40f2968e-20e6-4009-88a1-c1d4c1c8371e.jpg',
-        'https://media.gq.com/photos/5877c21f57b572032fe7f304/master/w_800/0217-GQ-FEJM01-01-Janelle-Monae-03.jpg',
-        'https://media.wmagazine.com/photos/585993c97bff064164722dd9/4:3/w_1536/0217.who.opener.lo;16_View.jpg',
-        'https://www.billboard.com/files/media/bb27-beat-janelle-monae-3fj-2016-billboard-1548.jpg',
-        'http://img.wennermedia.com/social/janelle-monae-e57247ba-d253-4786-802e-10ff41a9ef32.jpg',
-        'https://www.grammy.com/sites/com/files/janellemonae-spotlight-645713968.png'
-      ]
+      site: '',
+      urlArr: [],
     }
   }
   
-  pickPic () {
-    const imgArr = this.state.imgArr
-    let newPic = imgArr[Math.floor(Math.random() * Math.floor(imgArr.length-1))]
-    this.setState({ pic: {uri: newPic }})
+  componentDidMount() {
+    const { params } = this.props.navigation.state
+    axios.get('http://172.16.26.79:8080/api/users')
+    .then((res) => {
+      const users = res.data
+      const [ user ] = users.filter((user) => user.email === params.email)
+      let urlArr = user.categories
+      let site = urlArr[Math.floor(Math.random() * Math.floor(urlArr.length - 1))];
+      this.setState({ urlArr, site })
+    })
+    .catch((error) => console.log(error))
+  }
+
+  nextSite () {
+    urlArr = this.state.urlArr
+    site = urlArr[Math.floor(Math.random() * Math.floor(urlArr.length-1))]
+    this.setState({ site })
   }
 
   render() {
-    return <View style={styles.container}>
-        <TouchableWithoutFeedback onPress={this.pickPic.bind(this)}>
+    return (
+      <View style={styles.container}>
           {/*<Image source={this.state.pic} style={{ width: 200, height: 400 }} />*/}
-          <WebView source={{ uri: 'https://www.rollingstone.com/music/features/cover-story-janelle-monae-prince-new-lp-her-sexuality-w519523' }} style={{ marginTop: 20, width: 300, height: 300 }} />
-        </TouchableWithoutFeedback>
-      </View>;
+          <WebView source={{ uri: this.state.site }} style={{ marginTop: 20, width: 300, height: 300 }} />
+          <Button onPress={this.nextSite.bind(this)} title="Next"/>
+      </View>
+    )
   }
 }
 
@@ -119,11 +141,11 @@ export default class App extends React.Component {
       rendering: true
     }
   }
-  // componentDidMount() {
-  //   setTimeout(() => {
-  //     this.setState({ rendering: false })
-  //   }, 10000)
-  // }
+  componentDidMount() {
+    // setTimeout(() => {
+    //   this.setState({ rendering: false })
+    // }, 10000)
+  }
   
   render() {
     return (
