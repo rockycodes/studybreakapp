@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image, Button, TouchableWithoutFeedback } from 'react-native';
+import { StyleSheet, Text, View, Image, Button, TouchableWithoutFeedback, WebView } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 
 
@@ -51,7 +51,13 @@ const styles = StyleSheet.create({
     paddingTop: 40,
     paddingBottom: 60
   },
-  buttons: {}
+  buttons: {},
+  kickedOut: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  }
 });
 
 
@@ -84,13 +90,12 @@ class UserPage extends React.Component {
   }
 
   render() {
-    return (
-      <View style={styles.container}>
-        <TouchableWithoutFeedback onPress = {this.pickPic.bind(this)}>
-          <Image source={this.state.pic} style={{ width: 200, height: 400 }} />
+    return <View style={styles.container}>
+        <TouchableWithoutFeedback onPress={this.pickPic.bind(this)}>
+          {/*<Image source={this.state.pic} style={{ width: 200, height: 400 }} />*/}
+          <WebView source={{ uri: 'https://www.rollingstone.com/music/features/cover-story-janelle-monae-prince-new-lp-her-sexuality-w519523' }} style={{ marginTop: 20, width: 300, height: 300 }} />
         </TouchableWithoutFeedback>
-      </View>
-    );
+      </View>;
   }
 }
 
@@ -109,8 +114,26 @@ const RootStack = StackNavigator(
 );
 
 export default class App extends React.Component {
+  constructor () {
+    super ();
+    this.state = {
+      rendering: true
+    }
+  }
+  // componentDidMount() {
+  //   setTimeout(() => {
+  //     this.setState({ rendering: false })
+  //   }, 10000)
+  // }
+  
   render() {
-    return <RootStack />;
+    return (
+      this.state.rendering
+      ? <RootStack />
+      : <View style={styles.kickedOut}>
+          <Text>Time to get back to work!</Text>
+        </View>
+    )
   }
 }
 
