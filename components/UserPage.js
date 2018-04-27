@@ -5,7 +5,7 @@ import { StyleSheet, Text, View, Image, Button } from 'react-native';
 //need function that randomly selects pic from list and sets that on state
 //on Click, run newPic
 
-export default class UserPage extends React.Component {
+class UserPage extends React.Component {
   render() {
     let pic = {
       uri:

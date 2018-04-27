@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View, Image, Button } from 'react-native';
 import UserPage from './UserPage';
 
-export default class SignIn extends React.Component {
+class SignIn extends React.Component {
   state = { buttonPress: false };
 
   onButtonPress() {
