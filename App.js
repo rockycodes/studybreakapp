@@ -1,79 +1,84 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image, Button, TouchableWithoutFeedback, WebView } from 'react-native';
+import { StyleSheet, Text, View, Image, Button, TouchableWithoutFeedback, WebView, KeyboardAvoidingView } from 'react-native';
 import { FormLabel, FormInput } from 'react-native-elements'
 import { StackNavigator } from 'react-navigation';
 import axios from 'axios';
 
+//fullstack IP - http://172.16.26.79:8080
 
 class SignIn extends React.Component {
+  constructor(){
+    super()
+    this.state = {
+      email: '',
+      password: '',
+      user: {}
+    }
+  }
+  
+  handleLogin(evt) {
+    evt.preventDefault();
+    const email = this.state.email
+    const password = this.state.password
+    axios.post('http://192.168.1.156:8080/auth/login', { email, password })
+    .then((res) => {
+      const user = res.data
+      this.setState({ user })
+      this.props.navigation.navigate('Page', {
+        user: this.state.user
+      });
+    })
+    .catch(error => console.log(error));
 
-  onSubmit(event){
-    event.prevenDefault()
-    alert('woot!')
+  }
+
+  handleSignup(event) {
+    event.preventDefault();
+    alert('signup!');
   }
 
   render() {
     let pic = {
-      uri: 'http://etcalendar.its.txstate.edu/image/6722/take%20a%20study%20break.jpg'
-    }
+      uri:
+        'http://etcalendar.its.txstate.edu/image/6722/take%20a%20study%20break.jpg'
+    };
     return (
-      <View style={styles.container}>
+      <KeyboardAvoidingView style={styles.container} behavior='position' enabled>
         <View style={styles.logo}>
           <Image source={pic} style={{ width: 262, height: 150 }} />
         </View>
         <View style={styles.form}>
           <FormLabel>email</FormLabel>
-          <FormInput/>
+          <FormInput onChangeText={(value) => this.setState({email: value.toLowerCase()})}/>
           <FormLabel>password</FormLabel>
-          <FormInput/>
+          <FormInput onChangeText={(value) => this.setState({password: value.toLowerCase()})}/>
           <View style={styles.loginSignupBtns}>
-            <Button 
-              onPress={() => { this.handleLogin }}
+            <Button
+              onPress={this.handleLogin.bind(this)}
               title="log in"
               color="darkgrey"
+              accessibilityLabel='login'
             />
-            <Button 
-              onPress={() => { this.handleSignup }}
+            <Button
+              onPress={this.handleSignup.bind(this)}
               title="sign up"
               color="darkgrey"
+              accessibilityLabel='signup'
             />
           </View>
         </View>
-          {/*<Button
-            onPress={() => {
-              this.props.navigation.navigate('Page', {
-                email: 'laurel.bear@gmail.com'
-              })}}
-            title="Laurel"
-            color="#f4af41"
-            accessibilityLabel="Laurel's login"
-          />
-          <Button
-            onPress={() => this.props.navigation.navigate('Page', {
-              email: 'hgodlove@gmail.com'
-            })}
-            title="Hannah"
-            color="#f49741"
-            accessibilityLabel="Hannah's login"
-          />
-          <Button
-            onPress={() => this.props.navigation.navigate('Page', {
-              email: 'roxannewinston@gmail.com'
-            })}
-            title="Roxanne"
-            color="#f46d41"
-            accessibilityLabel="Roxanne's login"
-          />*/}
-      </View>
-    )
+      </KeyboardAvoidingView>
+    );
   }
 }
 
+//USER PAGEEEEEEEEEEEEEE
 
 class UserPage extends React.Component {
   constructor() {
     super();
     this.state = {
+      user: {},
       site: '',
       urlArr: [],
     }
@@ -81,20 +86,15 @@ class UserPage extends React.Component {
   
   componentDidMount() {
     const { params } = this.props.navigation.state
-    axios.get('http://172.16.26.79:8080/api/users')
-    .then((res) => {
-      const users = res.data
-      const [ user ] = users.filter((user) => user.email === params.email)
-      let urlArr = user.categories
-      let site = urlArr[Math.floor(Math.random() * Math.floor(urlArr.length - 1))];
-      this.setState({ urlArr, site })
-    })
-    .catch((error) => console.log(error))
+    const user = params.user
+    let urlArr = user.categories
+    let site = urlArr[Math.floor(Math.random() * Math.floor(urlArr.length))];
+    this.setState({user, site, urlArr})
   }
 
   nextSite () {
     urlArr = this.state.urlArr
-    site = urlArr[Math.floor(Math.random() * Math.floor(urlArr.length-1))]
+    site = urlArr[Math.floor(Math.random() * Math.floor(urlArr.length))]
     this.setState({ site })
   }
 
