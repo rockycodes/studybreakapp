@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image, Button, TouchableWithoutFeedback, WebView, FormLabel, FormInput } from 'react-native';
+import { StyleSheet, Text, View, Image, Button, TouchableWithoutFeedback, WebView } from 'react-native';
+import { FormLabel, FormInput } from 'react-native-elements'
 import { StackNavigator } from 'react-navigation';
 import axios from 'axios';
 
@@ -20,16 +21,25 @@ class SignIn extends React.Component {
         <View style={styles.logo}>
           <Image source={pic} style={{ width: 262, height: 150 }} />
         </View>
-        <View style={styles.buttons}>
-          {/*<FormLabel>email</FormLabel>
+        <View style={styles.form}>
+          <FormLabel>email</FormLabel>
           <FormInput/>
           <FormLabel>password</FormLabel>
           <FormInput/>
-          <Button 
-            onPress={() => { this.handleSubmit}}
-            title="Log In"
-          />*/}
-          <Button
+          <View style={styles.loginSignupBtns}>
+            <Button 
+              onPress={() => { this.handleLogin }}
+              title="log in"
+              color="darkgrey"
+            />
+            <Button 
+              onPress={() => { this.handleSignup }}
+              title="sign up"
+              color="darkgrey"
+            />
+          </View>
+        </View>
+          {/*<Button
             onPress={() => {
               this.props.navigation.navigate('Page', {
                 email: 'laurel.bear@gmail.com'
@@ -53,32 +63,11 @@ class SignIn extends React.Component {
             title="Roxanne"
             color="#f46d41"
             accessibilityLabel="Roxanne's login"
-          />
-        </View>
+          />*/}
       </View>
     )
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    //justifyContent: 'center'
-  },
-  logo: {
-    paddingTop: 40,
-    paddingBottom: 60
-  },
-  buttons: {},
-  kickedOut: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  }
-});
 
 
 class UserPage extends React.Component {
@@ -159,4 +148,31 @@ export default class App extends React.Component {
 }
 
 
-
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center'
+    //justifyContent: 'center'
+  },
+  logo: {
+    paddingTop: 40,
+    paddingBottom: 60
+  },
+  buttons: {},
+  kickedOut: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  form: {
+    width: 300
+  },
+  loginSignupBtns: {
+    paddingTop: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+  }
+});
