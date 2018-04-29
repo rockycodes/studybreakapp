@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, Image, Button, TouchableWithoutFeedback, WebVie
 import { FormLabel, FormInput } from 'react-native-elements'
 import { StackNavigator } from 'react-navigation';
 import axios from 'axios';
+import { KeyAwareScrollView, KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 //fullstack IP - http://172.16.26.79:8080
 //hannah IP - http://192.168.1.156:8080
@@ -168,10 +169,9 @@ class CategorySelectPage extends React.Component {
     if (this.state.catTwo !== '') catsToAdd.push(this.state.catTwo);
     if (this.state.catThree !== '') catsToAdd.push(this.state.catThree);
     const userId = this.state.user.id
+    console.log('cats are ...', catsToAdd)
     axios
-      .post(`http://192.168.1.8:8080/api/users/${userId}/categories`, {
-        catsToAdd
-      })
+      .post(`http://192.168.1.8:8080/api/users/${userId}/categories`, { catsToAdd })
       .then(res => {
         const user = res.data;
         this.setState({ user });
@@ -183,7 +183,11 @@ class CategorySelectPage extends React.Component {
 
   render() {
     return (
-      <KeyboardAvoidingView style={styles.container} behavior='position' enabled>
+      <KeyboardAwareScrollView 
+        style={{backgroundColor: 'bisque'}} 
+        resetScrollToCoords={{x:0, y:0}} 
+        contentContainerStyle={styles.container} 
+        scrollEnabled={false}>
         <View style={styles.textHeader}>
           <Text style={{color: 'white', fontSize: 20}}>add some things you like!</Text>
         </View>
@@ -203,7 +207,7 @@ class CategorySelectPage extends React.Component {
             />
           </View>
         </View>
-      </KeyboardAvoidingView>
+      </KeyboardAwareScrollView>
     );
   }
 }
@@ -283,10 +287,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 20,
-    marginBottom: 40,
+    marginBottom: 20,
     paddingTop: 20,
     paddingBottom: 20,
     backgroundColor: 'darkorange',
+    width: 300
   },
   catSubmitBtn: {
     paddingTop: 50
