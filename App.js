@@ -5,6 +5,7 @@ import { StackNavigator } from 'react-navigation';
 import axios from 'axios';
 
 //fullstack IP - http://172.16.26.79:8080
+//hannah IP - http://192.168.1.156:8080
 
 class SignIn extends React.Component {
   constructor(){
@@ -20,15 +21,16 @@ class SignIn extends React.Component {
     evt.preventDefault();
     const email = this.state.email
     const password = this.state.password
-    axios.post('http://192.168.1.156:8080/auth/login', { email, password })
-    .then((res) => {
-      const user = res.data
-      this.setState({ user })
-      this.props.navigation.navigate('Page', {
-        user: this.state.user
-      });
-    })
-    .catch(error => console.log(error));
+    axios
+      .post('http://192.168.1.8:8080/auth/login', { email, password })
+      .then((res) => {
+        const user = res.data
+        this.setState({ user })
+        this.props.navigation.navigate('Page', {
+          user: this.state.user
+        });
+      })
+      .catch(error => console.log(error));
   }
 
   handleSignup(event) {
@@ -36,11 +38,13 @@ class SignIn extends React.Component {
     const email = this.state.email
     const password = this.state.password
     axios
-      .post('http://192.168.1.156:8080/auth/signup', { email, password })
+      .post('http://192.168.1.8:8080/auth/signup', { email, password })
       .then(res => {
         const user = res.data;
         this.setState({ user });
-        this.props.navigation.navigate('CategoryPage', { user: this.state.user });
+        this.props.navigation.navigate('CategoryPage', {
+          user: this.state.user
+        });
       })
       .catch(error => console.log(error));
   }
@@ -87,29 +91,50 @@ class UserPage extends React.Component {
     super();
     this.state = {
       user: {},
-      site: '',
-      urlArr: [],
+      url: '',
+      catArr: [],
     }
   }
   
   componentDidMount() {
     const { params } = this.props.navigation.state
     const user = params.user
-    let urlArr = user.categories
-    let site = urlArr[Math.floor(Math.random() * Math.floor(urlArr.length))];
-    this.setState({user, site, urlArr})
+    let catArr = user.categories
+    this.setState({ user, catArr })
+    let category = catArr[Math.floor(Math.random() * catArr.length)];
+    console.log("category is..", category)
+    let index = Math.floor(Math.random()*100)
+    console.log("index is..", index)
+    fetch(`https://www.googleapis.com/customsearch/v1?key=AIzaSyCpNig0xgMK0kBUvS063nd8EPvc4NTEJ9o&cx=011206717166158345436:d6qgvrrgtnq&q=${category}&num=1&start=${index}`)
+      .then(res => res.json())
+      .then(site => {
+        let url = site.items[0].link
+        console.log("url is...", url)
+        this.setState({ url });
+      })
+      .catch((err) => console.log(err))
   }
 
   nextSite () {
-    urlArr = this.state.urlArr
-    site = urlArr[Math.floor(Math.random() * Math.floor(urlArr.length))]
-    this.setState({ site })
+    catArr = this.state.catArr
+    let category = catArr[Math.floor(Math.random() * catArr.length)];
+    console.log('category is..', category);
+    let index = Math.floor(Math.random() * 100);
+    console.log('index is..', index);
+    fetch(`https://www.googleapis.com/customsearch/v1?key=AIzaSyCpNig0xgMK0kBUvS063nd8EPvc4NTEJ9o&cx=011206717166158345436:d6qgvrrgtnq&q=${category}&num=1&start=${index}`)
+      .then(res => res.json())
+      .then(site => {
+        let url = site.items[0].link
+        console.log('url is...', url)
+        this.setState({ url })
+      })
+      .catch(err => console.log(err))
   }
 
   render() {
     return (
       <View style={styles.container}>
-          <WebView source={{ uri: this.state.site }} style={{ marginTop: 20, width: 300, height: 300 }} />
+          <WebView source={{ uri: this.state.url }} style={{ marginTop: 20, width: 300, height: 300 }} />
           <Button onPress={this.nextSite.bind(this)} title="Next"/>
       </View>
     )
@@ -123,7 +148,9 @@ class CategorySelectPage extends React.Component {
   constructor() {
     super();
     this.state = {
-      urlsToAdd: [],
+      catOne: '',
+      catTwo: '',
+      catThree: '',
       user: {}
     };
   }
@@ -135,12 +162,15 @@ class CategorySelectPage extends React.Component {
   }
 
   handleSubmit(event) {
-    event.preventDefault();
-    const urlsToAdd = this.state.urlsToAdd;
-    const userId = this.state.user.id;
+    event.preventDefault()
+    const catsToAdd = []
+    if (this.state.catOne !== '') catsToAdd.push(this.state.catOne);
+    if (this.state.catTwo !== '') catsToAdd.push(this.state.catTwo);
+    if (this.state.catThree !== '') catsToAdd.push(this.state.catThree);
+    const userId = this.state.user.id
     axios
-      .post(`http://192.168.1.156:8080/api/users/${userId}/categories`, {
-        urlsToAdd
+      .post(`http://192.168.1.8:8080/api/users/${userId}/categories`, {
+        catsToAdd
       })
       .then(res => {
         const user = res.data;
@@ -153,38 +183,27 @@ class CategorySelectPage extends React.Component {
 
   render() {
     return (
-      <View style={styles.container}>
-        <Button
-          onPress={() => this.state.urlsToAdd.push(
-            'https://www.vox.com/videos/2017/5/23/15362626/how-tap-dancing-was-made-in-america'
-          )}
-          title="Tap Dancing"
-          color="darkgrey"
-          accessibilityLabel="tap dancing"
-        />
-        <Button
-          onPress={() => this.state.urlsToAdd.push(
-            'http://cheezburger.com/1633029/33-funny-cat-memes-that-never-fail-to-make-us-lol'
-          )}
-          title="Cats"
-          color="darkgrey"
-          accessibilityLabel="cats"
-        />
-        <Button
-          onPress={() => this.state.urlsToAdd.push(
-            'https://www.motherjones.com/media/2014/06/computer-science-programming-code-diversity-sexism-education/'
-          )}
-          title="Coding"
-          color="darkgrey"
-          accessibilityLabel="coding"
-        />
-        <Button
-          onPress={this.handleSubmit.bind(this)}
-          title="Submit"
-          color="darkgrey"
-          accessibilityLabel="submit"
-        />
-      </View>
+      <KeyboardAvoidingView style={styles.container} behavior='position' enabled>
+        <View style={styles.textHeader}>
+          <Text style={{color: 'white', fontSize: 20}}>add some things you like!</Text>
+        </View>
+        <View style={styles.form}>
+          <FormLabel>1.</FormLabel>
+          <FormInput onChangeText={(value) => this.setState({catOne: value.toLowerCase()})}/>
+          <FormLabel>2.</FormLabel>
+          <FormInput onChangeText={(value) => this.setState({catTwo: value.toLowerCase()})}/>
+          <FormLabel>3.</FormLabel>
+          <FormInput onChangeText={(value) => this.setState({catThree: value.toLowerCase()})}/>
+          <View style={styles.catSubmitBtn}>
+            <Button
+              onPress={this.handleSubmit.bind(this)}
+              title="onwards >"
+              color="darkorange"
+              accessibilityLabel='submit'
+            />
+          </View>
+        </View>
+      </KeyboardAvoidingView>
     );
   }
 }
@@ -239,6 +258,7 @@ const styles = StyleSheet.create({
     //justifyContent: 'center'
   },
   logo: {
+    alignItems: 'center',
     paddingTop: 40,
     paddingBottom: 60
   },
@@ -256,6 +276,19 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-around',
+    justifyContent: 'space-around'
+  },
+  textHeader: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+    marginBottom: 40,
+    paddingTop: 20,
+    paddingBottom: 20,
+    backgroundColor: 'darkorange',
+  },
+  catSubmitBtn: {
+    paddingTop: 50
   }
 });
