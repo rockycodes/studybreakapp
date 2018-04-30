@@ -23,13 +23,11 @@ class SignIn extends React.Component {
     const email = this.state.email
     const password = this.state.password
     axios
-      .post('http://192.168.1.8:8080/auth/login', { email, password })
-      .then((res) => {
-        const user = res.data
-        this.setState({ user })
-        this.props.navigation.navigate('Page', {
-          user: this.state.user
-        });
+      .post('http://192.168.1.156:8080/auth/login', { email, password })
+      .then(res => {
+        const user = res.data;
+        this.setState({ user });
+        this.props.navigation.navigate('Page', { user: this.state.user });
       })
       .catch(error => console.log(error));
   }
@@ -39,7 +37,7 @@ class SignIn extends React.Component {
     const email = this.state.email
     const password = this.state.password
     axios
-      .post('http://192.168.1.8:8080/auth/signup', { email, password })
+      .post('http://192.168.1.156:8080/auth/signup', { email, password })
       .then(res => {
         const user = res.data;
         this.setState({ user });
@@ -109,6 +107,7 @@ class UserPage extends React.Component {
     fetch(`https://www.googleapis.com/customsearch/v1?key=AIzaSyCpNig0xgMK0kBUvS063nd8EPvc4NTEJ9o&cx=011206717166158345436:d6qgvrrgtnq&q=${category}&num=1&start=${index}`)
       .then(res => res.json())
       .then(site => {
+        console.log(site)
         let url = site.items[0].link
         console.log("url is...", url)
         this.setState({ url });
@@ -119,14 +118,11 @@ class UserPage extends React.Component {
   nextSite () {
     catArr = this.state.catArr
     let category = catArr[Math.floor(Math.random() * catArr.length)];
-    console.log('category is..', category);
     let index = Math.floor(Math.random() * 100);
-    console.log('index is..', index);
     fetch(`https://www.googleapis.com/customsearch/v1?key=AIzaSyCpNig0xgMK0kBUvS063nd8EPvc4NTEJ9o&cx=011206717166158345436:d6qgvrrgtnq&q=${category}&num=1&start=${index}`)
       .then(res => res.json())
       .then(site => {
         let url = site.items[0].link
-        console.log('url is...', url)
         this.setState({ url })
       })
       .catch(err => console.log(err))
@@ -171,11 +167,13 @@ class CategorySelectPage extends React.Component {
     const userId = this.state.user.id
     console.log('cats are ...', catsToAdd)
     axios
-      .post(`http://192.168.1.8:8080/api/users/${userId}/categories`, { catsToAdd })
+      .post(`http://192.168.1.156:8080/api/users/${userId}/categories`, {
+        catsToAdd
+      })
       .then(res => {
         const user = res.data;
         this.setState({ user });
-        console.log(user)
+        console.log(user);
         this.props.navigation.navigate('Page', { user: this.state.user });
       })
       .catch(error => console.log(error));
